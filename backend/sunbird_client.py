@@ -14,7 +14,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_TOKEN = os.getenv("SUNBIRD_API_TOKEN")
-API_BASE_URL = os.getenv("SUNBIRD_API_BASE_URL", "https://api.sunbird.ai/v1")
+API_BASE_URL = os.getenv("SUNBIRD_API_BASE_URL", "https://api.sunbird.ai")
+
+# Language to TTS speaker ID mapping
+LANGUAGE_TO_SPEAKER_ID = {
+    "Luganda": 248,
+    "Runyankole": 243,
+    "Ateso": 242,
+    "Lugbara": 245,
+    "Acholi": 241,
+}
 
 
 class SunbirdAPIError(Exception):
@@ -68,13 +77,13 @@ class SunbirdClient:
         except requests.exceptions.RequestException as e:
             raise SunbirdAPIError(f"API request failed: {str(e)}")
     
-    def transcribe_audio(self, audio_file_path: str, language: str = "en") -> str:
+    def transcribe_audio(self, audio_file_path: str, language: str = "eng") -> str:
         """
         Transcribe audio to text using Speech-to-Text API.
         
         Args:
             audio_file_path: Path to audio file
-            language: Language code (default: "en")
+            language: Language code (default: "eng" for English)
             
         Returns:
             Transcribed text
@@ -83,19 +92,18 @@ class SunbirdClient:
             SunbirdAPIError: If transcription fails
         """
         with open(audio_file_path, "rb") as f:
-            files = {"file": f}
-            data = {"language": language}
+            files = {"audio": f}
             
             try:
                 response = requests.post(
-                    f"{self.base_url}/speech-to-text",
+                    f"{self.base_url}/tasks/stt",
                     headers={"Authorization": f"Bearer {self.api_token}"},
-                    files=files,
-                    data=data
+                    files=files
                 )
                 response.raise_for_status()
                 result = response.json()
-                return result.get("transcript", "")
+                # Extract transcript from response: result["output"]["text"]
+                return result.get("output", {}).get("text", "")
             except requests.exceptions.RequestException as e:
                 raise SunbirdAPIError(f"Transcription failed: {str(e)}")
     
@@ -112,19 +120,16 @@ class SunbirdClient:
         Raises:
             SunbirdAPIError: If summarization fails
         """
-        prompt = f"Summarize the following text concisely:\n\n{text}"
+        instruction = f"Summarize the following text concisely in 2-3 sentences:\n\n{text}"
         
         payload = {
-            "model": "sunflower-chat",
-            "messages": [
-                {"role": "user", "content": prompt}
-            ]
+            "instruction": instruction
         }
         
         try:
-            result = self._make_request("POST", "/chat", json=payload)
-            # Extract summary from response
-            return result.get("choices", [{}])[0].get("message", {}).get("content", "")
+            result = self._make_request("POST", "/tasks/sunflower_simple", json=payload)
+            # Extract summary from response: result["output"]
+            return result.get("output", "")
         except SunbirdAPIError as e:
             raise SunbirdAPIError(f"Summarization failed: {str(e)}")
     
@@ -134,7 +139,7 @@ class SunbirdClient:
         
         Args:
             text: Text to translate
-            target_language: Target language (Luganda, Runyankole, Ateso, Lugbara, Acholi)
+            target_language: Target language name (e.g., "Luganda")
             
         Returns:
             Translated text
@@ -142,29 +147,26 @@ class SunbirdClient:
         Raises:
             SunbirdAPIError: If translation fails
         """
-        prompt = f"Translate the following text to {target_language}:\n\n{text}"
+        instruction = f"Translate the following text to {target_language}. Only provide the translation, nothing else:\n\n{text}"
         
         payload = {
-            "model": "sunflower-chat",
-            "messages": [
-                {"role": "user", "content": prompt}
-            ]
+            "instruction": instruction
         }
         
         try:
-            result = self._make_request("POST", "/chat", json=payload)
-            # Extract translation from response
-            return result.get("choices", [{}])[0].get("message", {}).get("content", "")
+            result = self._make_request("POST", "/tasks/sunflower_simple", json=payload)
+            # Extract translation from response: result["output"]
+            return result.get("output", "")
         except SunbirdAPIError as e:
             raise SunbirdAPIError(f"Translation failed: {str(e)}")
     
-    def synthesize_speech(self, text: str, language: str = "en", output_path: str = "output.mp3") -> str:
+    def synthesize_speech(self, text: str, language: str = "Luganda", output_path: str = "output.mp3") -> str:
         """
         Synthesize text to speech using Text-to-Speech API.
         
         Args:
             text: Text to convert to speech
-            language: Language code (default: "en")
+            language: Target language for speech (default: "Luganda")
             output_path: Path to save audio file
             
         Returns:
@@ -173,22 +175,35 @@ class SunbirdClient:
         Raises:
             SunbirdAPIError: If synthesis fails
         """
-        data = {
+        # Get speaker ID from language
+        speaker_id = LANGUAGE_TO_SPEAKER_ID.get(language, 248)  # Default to Luganda
+        
+        payload = {
             "text": text,
-            "language": language
+            "speaker_id": speaker_id
         }
         
         try:
             response = requests.post(
-                f"{self.base_url}/text-to-speech",
+                f"{self.base_url}/tasks/tts",
                 headers={"Authorization": f"Bearer {self.api_token}"},
-                json=data
+                json=payload
             )
             response.raise_for_status()
+            result = response.json()
+            
+            # Get audio URL from response
+            audio_url = result.get("output", {}).get("audio_url", "")
+            if not audio_url:
+                raise SunbirdAPIError("No audio URL in response")
+            
+            # Download audio from URL
+            audio_response = requests.get(audio_url)
+            audio_response.raise_for_status()
             
             # Save audio file
             with open(output_path, "wb") as f:
-                f.write(response.content)
+                f.write(audio_response.content)
             
             return output_path
         except requests.exceptions.RequestException as e:
