@@ -75,7 +75,12 @@ class SunbirdClient:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            raise SunbirdAPIError(f"API request failed: {str(e)}")
+            # Try to get error details from response
+            try:
+                error_detail = response.json()
+                raise SunbirdAPIError(f"API request failed: {str(e)} - Details: {error_detail}")
+            except:
+                raise SunbirdAPIError(f"API request failed: {str(e)}")
     
     def transcribe_audio(self, audio_file_path: str, language: str = "eng") -> str:
         """
