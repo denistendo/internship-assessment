@@ -128,13 +128,15 @@ class SunbirdClient:
         instruction = f"Summarize the following text concisely in 2-3 sentences:\n\n{text}"
         
         payload = {
-            "instruction": instruction
+            "messages": [
+                {"role": "user", "content": instruction}
+            ]
         }
         
         try:
-            result = self._make_request("POST", "/tasks/sunflower_simple", json=payload)
-            # Extract summary from response: result["output"]
-            return result.get("output", "")
+            result = self._make_request("POST", "/tasks/sunflower_inference", json=payload)
+            # Extract summary from response: result["content"]
+            return result.get("content", "")
         except SunbirdAPIError as e:
             raise SunbirdAPIError(f"Summarization failed: {str(e)}")
     
@@ -155,13 +157,15 @@ class SunbirdClient:
         instruction = f"Translate the following text to {target_language}. Only provide the translation, nothing else:\n\n{text}"
         
         payload = {
-            "instruction": instruction
+            "messages": [
+                {"role": "user", "content": instruction}
+            ]
         }
         
         try:
-            result = self._make_request("POST", "/tasks/sunflower_simple", json=payload)
-            # Extract translation from response: result["output"]
-            return result.get("output", "")
+            result = self._make_request("POST", "/tasks/sunflower_inference", json=payload)
+            # Extract translation from response: result["content"]
+            return result.get("content", "")
         except SunbirdAPIError as e:
             raise SunbirdAPIError(f"Translation failed: {str(e)}")
     
