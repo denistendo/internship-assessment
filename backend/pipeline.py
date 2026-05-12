@@ -117,19 +117,20 @@ class ProcessingPipeline:
         except SunbirdAPIError as e:
             return None, f"Translation error: {str(e)}"
     
-    def synthesize_speech(self, text: str, output_path: str = "output.mp3") -> Tuple[Optional[str], Optional[str]]:
+    def synthesize_speech(self, text: str, target_language: str = "Luganda", output_path: str = "output.mp3") -> Tuple[Optional[str], Optional[str]]:
         """
         Synthesize text to speech.
         
         Args:
             text: Text to synthesize
+            target_language: Target language for speech generation (e.g., "Luganda")
             output_path: Path to save audio file
             
         Returns:
             Tuple of (file_path, error_message)
         """
         try:
-            file_path = self.client.synthesize_speech(text, output_path=output_path)
+            file_path = self.client.synthesize_speech(text, language=target_language, output_path=output_path)
             return file_path, None
         except SunbirdAPIError as e:
             return None, f"Speech synthesis error: {str(e)}"
@@ -190,7 +191,7 @@ class ProcessingPipeline:
             results["translation"] = translation
             
             # Step 4: Synthesize speech
-            audio_file, error = self.synthesize_speech(translation)
+            audio_file, error = self.synthesize_speech(translation, target_language=target_language)
             if error:
                 results["errors"].append(f"Speech synthesis: {error}")
                 return results
