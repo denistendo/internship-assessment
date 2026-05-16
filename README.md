@@ -82,10 +82,13 @@ The application requires the following environment variables to authenticate wit
 4. **Generate:** Click the "Generate Speech" button. The app will securely process your content through the Sunbird API.
 5. **View Results:** The results panel will dynamically swap in, displaying your original text, transcript (if applicable), AI summary, translated text, and an interactive audio player with the synthesized speech.
 
-## 🌐 Deployed Link
+## 🌐 Links & Deployment
 
 You can try the live, hosted version of the app here:
 **[👉 Try Sunbird Echo AI Live on Hugging Face Spaces](https://huggingface.co/spaces/denistendo/sunbird-ech0-AI)**
+
+You can view the full source code for this project here:
+**[👉 GitHub Repository: internship-assessment](https://github.com/denistendo/internship-assessment)**
 
 ## ⚠️ Known Limitations
 
