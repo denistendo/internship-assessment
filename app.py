@@ -64,12 +64,12 @@ st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-#MainMenu, header, footer { visibility: hidden; }
-html, body, [class*="st-"]:not(.e1nzilvr1):not(.e1nzilvr1 *) { 
+#MainMenu, header, footer {{ visibility: hidden; }}
+html, body, [class*="st-"]:not(.e1nzilvr1):not(.e1nzilvr1 *) {{ 
   font-family: 'Sora', sans-serif !important; 
   box-sizing: border-box; 
-}
-.stApp { background-color: {bg} !important; }
+}}
+.stApp {{ background-color: {bg} !important; }}
 
 @keyframes fadeUp {{
   from {{ opacity: 0; transform: translateY(14px); }}
@@ -177,6 +177,9 @@ html, body, [class*="st-"]:not(.e1nzilvr1):not(.e1nzilvr1 *) {
 .stRadio > div[role="radiogroup"] > label[data-checked="true"] {{
   background:{surface} !important; border-radius: 6px !important; box-shadow:0 1px 4px {shadow} !important;
 }}
+.stRadio label p {{
+  white-space: nowrap !important;
+}}
 
 .stTextArea textarea {{
   background:{surface2} !important; border:1.5px solid {border} !important;
@@ -200,6 +203,10 @@ html, body, [class*="st-"]:not(.e1nzilvr1):not(.e1nzilvr1 *) {
 [data-testid="stFileUploader"] {{
   background:{surface2} !important; border:1.5px dashed {border} !important;
   border-radius:11px !important; transition:border-color .15s !important;
+}}
+/* Hide the broken Material Icon text in the uploader button safely */
+[data-testid="stFileUploader"] button span > span {{
+  display: none !important;
 }}
 [data-testid="stFileUploader"]:hover {{ border-color:{accent} !important; }}
 
