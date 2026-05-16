@@ -1,3 +1,13 @@
+---
+title: Sunbird Echo AI
+emoji: 🐦
+colorFrom: yellow
+colorTo: red
+sdk: streamlit
+app_file: app.py
+pinned: false
+---
+
 # Sunbird Echo AI
 
 Sunbird Echo AI is an end-to-end web application that bridges the language gap by translating and voicing text or audio into native Ugandan languages. Built on the Sunbird AI API and Streamlit, the app allows users to input text or upload an audio recording. It instantly transcribes the audio, summarizes the content (if lengthy), translates it into one of five supported Ugandan dialects, and finally synthesizes authentic, high-quality local speech.
