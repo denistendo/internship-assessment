@@ -83,7 +83,7 @@ class ProcessingPipeline:
     
     def summarize_text(self, text: str) -> Tuple[Optional[str], Optional[str]]:
         """
-        Summarize text using Sunflower LLM.
+        Summarize text using Sunflower LLM. If text is short, bypass summarization.
         
         Args:
             text: Text to summarize
@@ -91,6 +91,10 @@ class ProcessingPipeline:
         Returns:
             Tuple of (summary, error_message)
         """
+        # If the text is too short to be summarized, just return it as-is
+        if len(text.split()) < 30:
+            return text, None
+
         try:
             summary = self.client.summarize(text)
             return summary, None
