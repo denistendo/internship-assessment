@@ -198,8 +198,9 @@ class ProcessingPipeline:
             audio_file, error = self.synthesize_speech(translation, target_language=target_language)
             if error:
                 results["errors"].append(f"Speech synthesis: {error}")
-                return results
-            results["audio_file"] = audio_file
+                results["audio_file"] = None
+            else:
+                results["audio_file"] = audio_file
             
             results["success"] = True
             return results
