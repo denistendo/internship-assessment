@@ -1,5 +1,18 @@
-.idea/
-venv
-**__pycache__
-.pytest_cache
+# Ignore python artifacts
+__pycache__/
+*.pyc
+
+# Ignore environment variables
 .env
+
+# Ignore virtual environments
+venv/
+env/
+
+# Ignore generated audio files
+*.mp3
+*.wav
+*.m4a
+*.flac
+*.ogg
+temp_*
