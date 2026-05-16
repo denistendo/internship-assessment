@@ -168,32 +168,32 @@ html, body, [class*="st-"] {{ font-family: 'Sora', sans-serif !important; box-si
 
 /* Widgets */
 /* Widgets */
-.stRadio > div[role="radiogroup"] {
+.stRadio > div[role="radiogroup"] {{
   display:flex !important; gap:6px !important;
   background:{surface2} !important;
   border-radius:10px !important; padding:4px !important;
-}
-.stRadio > div[role="radiogroup"] > label {
+}}
+.stRadio > div[role="radiogroup"] > label {{
   flex:1 !important; border-radius:7px !important;
   padding:10px 0 !important; text-align:center !important;
   justify-content:center !important; align-items:center !important;
   margin:0 !important; background:transparent !important; border:none !important;
   cursor:pointer !important; transition:background .15s !important;
-}
+}}
 /* Hide the native radio circles to make them look like clean pills */
-.stRadio > div[role="radiogroup"] > label > div:first-child {
+.stRadio > div[role="radiogroup"] > label > div:first-child {{
   display: none !important;
-}
-.stRadio > div[role="radiogroup"] > label[data-checked="true"] {
+}}
+.stRadio > div[role="radiogroup"] > label[data-checked="true"] {{
   background:{surface} !important; box-shadow:0 1px 4px {shadow} !important;
-}
-.stRadio > div[role="radiogroup"] > label[data-checked="true"] p {
+}}
+.stRadio > div[role="radiogroup"] > label[data-checked="true"] p {{
   color:{text_c} !important; font-weight:700 !important;
-}
-.stRadio > div[role="radiogroup"] > label p {
+}}
+.stRadio > div[role="radiogroup"] > label p {{
   color:{muted} !important; font-size:0.83rem !important; margin:0 !important;
   width:100% !important; text-align:center !important;
-}
+}}
 
 .stTextArea textarea {{
   background:{surface2} !important; border:1.5px solid {border} !important;
@@ -214,14 +214,14 @@ html, body, [class*="st-"] {{ font-family: 'Sora', sans-serif !important; box-si
 }}
 .stSelectbox label {{ display:none !important; }}
 
-[data-testid="stFileUploader"] {
+[data-testid="stFileUploader"] {{
   background:{surface2} !important; border:1.5px dashed {border} !important;
   border-radius:11px !important; transition:border-color .15s !important;
-}
-[data-testid="stFileUploader"] section {
+}}
+[data-testid="stFileUploader"] section {{
   padding: 24px !important;
-}
-[data-testid="stFileUploader"]:hover { border-color:{accent} !important; }
+}}
+[data-testid="stFileUploader"]:hover {{ border-color:{accent} !important; }}
 
 [data-testid="baseButton-primary"] {{
   background:linear-gradient(135deg,{accent},#FBBF24) !important;
