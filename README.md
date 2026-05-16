@@ -75,7 +75,7 @@ The application requires the following environment variables to authenticate wit
 ## 🌐 Deployed Link
 
 You can try the live, hosted version of the app here:
-**[👉 Try Sunbird Echo AI Live on Hugging Face Spaces](https://huggingface.co/spaces/<your-username>/<your-space-name>)** *(Replace with your actual public link after deploying)*
+**[👉 Try Sunbird Echo AI Live on Hugging Face Spaces](https://huggingface.co/spaces/denistendo/sunbird-ech0-AI)**
 
 ## ⚠️ Known Limitations
 
@@ -102,7 +102,7 @@ This project is fully ready to be deployed as a Streamlit application on Hugging
 4. **Push your code:**
    Execute the following in your local terminal to deploy:
    ```bash
-   git remote add space https://huggingface.co/spaces/<your-username>/<your-space-name>
+   git remote add space https://huggingface.co/spaces/denistendo/sunbird-ech0-AI
    git push space main
    ```
 Hugging Face will automatically install the libraries from `requirements.txt` and launch `app.py`.
