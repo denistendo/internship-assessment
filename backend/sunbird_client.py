@@ -125,11 +125,10 @@ class SunbirdClient:
         Raises:
             SunbirdAPIError: If summarization fails
         """
-        instruction = f"Summarize the following text concisely in 2-3 sentences:\n\n{text}"
-        
         payload = {
             "messages": [
-                {"role": "user", "content": instruction}
+                {"role": "system", "content": "You are a strict summarization AI. Summarize the text precisely in 2-3 sentences without adding ANY new information, commentary, or conversational filler."},
+                {"role": "user", "content": f"Summarize the following text:\n\n{text}"}
             ]
         }
         
@@ -154,11 +153,10 @@ class SunbirdClient:
         Raises:
             SunbirdAPIError: If translation fails
         """
-        instruction = f"Translate the following text to {target_language}. Only provide the translation, nothing else:\n\n{text}"
-        
         payload = {
             "messages": [
-                {"role": "user", "content": instruction}
+                {"role": "system", "content": f"You are an expert translator for {target_language}. You must output ONLY the translated text. Do not include quotes, explanations, introductory phrases like 'Here is the translation', or any extra details."},
+                {"role": "user", "content": f"Translate the following text to {target_language}:\n\n{text}"}
             ]
         }
         
