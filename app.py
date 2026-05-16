@@ -1,22 +1,175 @@
 import streamlit as st
 import os
+import base64
 from backend.pipeline import ProcessingPipeline
 from dotenv import load_dotenv
 
-# Load environment variables just in case
 load_dotenv()
 
 # Page config
 st.set_page_config(
-    page_title="Sunbird AI Voice Pipeline",
+    page_title="Sunbird Echo AI",
     page_icon="🐦",
-    layout="centered"
+    layout="wide"
 )
 
-# Header
-st.title("🐦 Sunbird AI Pipeline")
-st.markdown("Speech · Summarisation · Translation · Synthesis — all in one pipeline.")
+# Custom CSS for the beautiful UI
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
+html, body, [class*="st-"] {
+    font-family: 'Nunito', sans-serif;
+}
+
+/* Header Area */
+.custom-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 0 30px 0;
+}
+.header-logo {
+    width: 40px;
+}
+.header-text {
+    display: flex;
+    flex-direction: column;
+}
+.header-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1A1A1A;
+    margin: 0;
+    line-height: 1.1;
+}
+.header-subtitle {
+    font-size: 0.9rem;
+    color: #8C7C6D;
+    margin: 0;
+}
+
+/* Hero Section */
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #3A2311;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.hero-title span {
+    color: #D97706; /* Amber */
+}
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: #6B5B4C;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 40px auto;
+}
+
+/* Tags */
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 50px;
+}
+.tag {
+    background: #F4E9D8;
+    color: #784A1C;
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Cards & System Overview */
+.system-card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    border: 1px solid #F0E8D9;
+}
+.system-card h3 {
+    margin-top: 0;
+    color: #3A2311;
+}
+.system-card p {
+    color: #6B5B4C;
+}
+
+/* Segmented Control / Radio Styling */
+div[role="radiogroup"] {
+    background: #F4E9D8 !important;
+    border-radius: 50px !important;
+    padding: 5px !important;
+    gap: 0 !important;
+}
+div[role="radiogroup"] > label {
+    border-radius: 40px !important;
+    padding: 10px 30px !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+}
+div[role="radiogroup"] > label[data-checked="true"] {
+    background: white !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+}
+
+/* Hide native streamlit file uploader borders to match */
+[data-testid="stFileUploader"] {
+    background: #FDF8EF !important;
+    border: 1px dashed #E5D5BA !important;
+    border-radius: 15px !important;
+    padding: 20px !important;
+}
+
+/* File uploader hover */
+[data-testid="stFileUploader"]:hover {
+    border-color: #D97706 !important;
+}
+
+/* Custom button overrides */
+[data-testid="baseButton-primary"] {
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    padding: 10px 20px !important;
+    box-shadow: 0 4px 15px rgba(242, 169, 80, 0.4) !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# Helper function to load logo
+def get_base64_image(image_path):
+    if os.path.exists(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    return ""
+
+logo_base64 = get_base64_image("logo.png")
+logo_html = f'<img src="data:image/png;base64,{logo_base64}" class="header-logo">' if logo_base64 else '<span style="font-size:30px;">🐦</span>'
+
+# Render Header
+st.markdown(f"""
+<div class="custom-header">
+    {logo_html}
+    <div class="header-text">
+        <div class="header-title">Sunbird Echo AI</div>
+        <div class="header-subtitle">Voicing Uganda's languages</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# Main layout logic
 @st.cache_resource
 def get_pipeline():
     try:
@@ -25,55 +178,77 @@ def get_pipeline():
         return None
 
 pipeline = get_pipeline()
-
-# Check for API token
 api_token = os.getenv("SUNBIRD_API_TOKEN")
 
 if not api_token or pipeline is None:
     st.error("⚠️ **Missing Sunbird API Token**")
-    st.warning("Please sign up at [api.sunbird.ai](https://api.sunbird.ai/), obtain a token, and add it to your `.env` file as `SUNBIRD_API_TOKEN=your_token_here`. Once added, restart the app.")
+    st.warning("Please configure your `.env` file with `SUNBIRD_API_TOKEN` and restart the application.")
     st.stop()
 
-st.divider()
+# Two-column layout
+col_left, col_right = st.columns([1.1, 1], gap="large")
 
-# Input Section
-st.header("1. Input")
-input_type = st.radio("Choose input method:", ["Text", "Audio File"], horizontal=True)
+with col_left:
+    st.markdown("""
+    <div class="hero-title">Transform Content into<br><span>Natural Speech</span></div>
+    <div class="hero-subtitle">An intelligent workspace for converting, translating, summarizing, and voicing content with a smooth modern experience.</div>
+    <div class="tags-container">
+        <div class="tag">✨ Modern amber theme</div>
+        <div class="tag">✨ 5+ regional dialects</div>
+        <div class="tag">✨ Authentic AI voices</div>
+        <div class="tag">✨ Instant Sunbird responses</div>
+        <div class="tag">✨ Quick processing</div>
+        <div class="tag">✨ Seamless text-to-audio</div>
+    </div>
+    
+    <div class="system-card">
+        <h3>System Overview</h3>
+        <p>Step-by-step processing workflow — transform text or audio into translated spoken output.</p>
+        <p style="font-weight: 700;">Progress: <span style="color: #D97706;">Ready</span> to begin processing</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-input_data = None
-
-if input_type == "Text":
-    input_data = st.text_area("Enter text to summarize and translate:", height=150)
-else:
-    uploaded_file = st.file_uploader("Upload audio (MP3, WAV, M4A, OGG, FLAC) - Max 5 min", type=["audio/mp3", "audio/wav", "audio/m4a", "audio/ogg", "audio/flac", "audio/mpeg"])
-    if uploaded_file is not None:
-        # Save temp file
-        temp_audio_path = f"temp_{uploaded_file.name}"
-        with open(temp_audio_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        
-        file_size_mb = os.path.getsize(temp_audio_path) / (1024 * 1024)
-        if file_size_mb > 50:
-            st.error("Audio exceeds the 5-minute limit (~50MB). Please upload a shorter clip.")
-            os.remove(temp_audio_path)
-        else:
-            st.success(f"Audio uploaded successfully ({file_size_mb:.1f} MB)")
-            input_data = temp_audio_path
-
-# Settings Section
-st.header("2. Language Settings")
-supported_langs = list(ProcessingPipeline.get_supported_languages().keys())
-target_language = st.selectbox("Select target language for translation:", supported_langs)
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# Run Pipeline
-if st.button("Run Pipeline", type="primary", use_container_width=True):
-    if not input_data:
-        st.error("Please provide an input (text or upload an audio file).")
+with col_right:
+    st.subheader("Content Input")
+    st.markdown("<p style='font-size: 0.8rem; font-weight: 700; color: #8C7C6D; letter-spacing: 1px; text-transform: uppercase;'>Input Options</p>", unsafe_allow_html=True)
+    
+    input_type = st.radio("Input Options", ["Text", "Voice"], horizontal=True, label_visibility="collapsed")
+    
+    input_data = None
+    
+    if input_type == "Text":
+        input_data = st.text_area("Type your text here", placeholder="Enter your content...", height=150)
     else:
-        with st.spinner("Processing your input through Sunbird AI..."):
-            input_type_key = "audio" if input_type == "Audio File" else "text"
+        uploaded_file = st.file_uploader("Upload an audio recording", type=["mp3", "wav", "m4a", "ogg", "flac"])
+        if uploaded_file is not None:
+            temp_audio_path = f"temp_{uploaded_file.name}"
+            with open(temp_audio_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+            
+            file_size_mb = os.path.getsize(temp_audio_path) / (1024 * 1024)
+            if file_size_mb > 50:
+                st.error("Audio exceeds 5-minute limit.")
+                os.remove(temp_audio_path)
+            else:
+                input_data = temp_audio_path
+                st.success(f"Audio ready ({file_size_mb:.1f} MB)")
+
+    st.markdown("<br><p style='font-size: 0.8rem; font-weight: 700; color: #8C7C6D; letter-spacing: 1px; text-transform: uppercase;'>Output Language</p>", unsafe_allow_html=True)
+    supported_langs = list(ProcessingPipeline.get_supported_languages().keys())
+    target_language = st.selectbox("Choose a preferred language", supported_langs, label_visibility="collapsed")
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    run_btn = st.button("✨ Start Processing", type="primary", use_container_width=True)
+
+# Processing Logic outside the columns to allow full width results
+if run_btn:
+    st.divider()
+    st.subheader("Results")
+    if not input_data:
+        st.error("Please provide an input (text or audio).")
+    else:
+        with st.spinner("Processing through Sunbird AI..."):
+            input_type_key = "audio" if input_type == "Voice" else "text"
             results = pipeline.run_full_pipeline(
                 input_type=input_type_key,
                 input_data=input_data,
@@ -81,39 +256,32 @@ if st.button("Run Pipeline", type="primary", use_container_width=True):
             )
 
         if results["success"]:
-            st.success("Pipeline completed successfully!")
-            
-            st.header("3. Results")
             tabs = st.tabs(["Original", "Transcript", "Summary", "Translation", "Audio"])
             
             with tabs[0]:
                 st.write(results["original_text"])
-                
             with tabs[1]:
                 if input_type_key == "audio" and results.get("transcript"):
                     st.write(results["transcript"])
                 else:
-                    st.info("No transcription generated (Text input was used).")
-                    
+                    st.info("No transcription needed for text input.")
             with tabs[2]:
                 st.write(results["summary"])
-                
             with tabs[3]:
                 st.write(results["translation"])
-                
             with tabs[4]:
                 if results.get("audio_file") and os.path.exists(results["audio_file"]):
                     with open(results["audio_file"], "rb") as af:
                         st.audio(af.read(), format="audio/mp3")
                 else:
-                    st.warning("No audio file was generated.")
+                    st.warning("No audio file generated.")
         else:
-            st.error("Pipeline failed. Please check the errors below.")
+            st.error("Pipeline failed.")
             for err in results.get("errors", []):
                 st.write(f"- {err}")
 
-        # Cleanup temporary audio files
-        if input_type == "Audio File" and input_data and os.path.exists(input_data):
+        # Cleanup
+        if input_type == "Voice" and input_data and os.path.exists(input_data):
             try:
                 os.remove(input_data)
             except Exception:
